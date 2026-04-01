@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Регистрация</h2>
+        
+        <div id="success-message" class="success-message"></div>
+        
+        <form id="register-form" method="POST" action="/api/register/">
+            <div class="form-group">
+                <input type="text" name="username" id="username" placeholder="Логин" required>
+                <div class="error-message" id="username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <input type="email" name="email" id="email" placeholder="Email" required>
+                <div class="error-message" id="email-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <input type="password" name="password" id="password" placeholder="Пароль" required>
+                <div class="error-message" id="password-error"></div>
+                <div class="password-requirements">
+                    <div id="length-req" class="requirement">- Минимум 8 символов</div>
+                    <div id="uppercase-req" class="requirement">- Заглавная буква</div>
+                    <div id="lowercase-req" class="requirement">- Строчная буква</div>
+                    <div id="number-req" class="requirement">- Цифра</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <input type="password" name="confirm_password" id="confirm_password" placeholder="Подтвердите пароль" required>
+                <div class="error-message" id="confirm-error"></div>
+            </div>
+            
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        
+        <hr>
+        
+        <div class="login-link">
+            Уже есть аккаунт? <a href="/login/">Войти</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

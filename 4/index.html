@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск отелей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .filter-group {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .filter-group input, .filter-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        
+        button {
+            padding: 8px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .hotel-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .hotel-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .hotel-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .hotel-city {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .hotel-price {
+            font-size: 20px;
+            color: #28a745;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .hotel-rating {
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+        }
+        
+        .error {
+            color: red;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Поиск отелей</h1>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label>Город:</label>
+                <input type="text" id="city" placeholder="Например: Москва">
+            </div>
+            
+            <div class="filter-group">
+                <label>Цена от:</label>
+                <input type="number" id="min_price" placeholder="3000">
+            </div>
+            
+            <div class="filter-group">
+                <label>Цена до:</label>
+                <input type="number" id="max_price" placeholder="7000">
+            </div>
+            
+            <button onclick="searchHotels()">Поиск</button>
+        </div>
+        
+        <div id="results" class="hotel-list"></div>
+    </div>
+    
+    <script>
+        async function searchHotels() {
+            const city = document.getElementById('city').value;
+            const minPrice = document.getElementById('min_price').value;
+            const maxPrice = document.getElementById('max_price').value;
+            
+            let url = '/api/hotels/';
+            const params = [];
+            
+            if (city) params.push(`city=${encodeURIComponent(city)}`);
+            if (minPrice) params.push(`min_price=${minPrice}`);
+            if (maxPrice) params.push(`max_price=${maxPrice}`);
+            
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">Загрузка...</div>';
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка загрузки');
+                }
+                
+                displayHotels(data.results);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">Ошибка: ${error.message}</div>`;
+            }
+        }
+        
+        function displayHotels(hotels) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (hotels.length === 0) {
+                resultsDiv.innerHTML = '<div class="loading">Отелей не найдено</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = hotels.map(hotel => `
+                <div class="hotel-card">
+                    <div class="hotel-name">${hotel.name}</div>
+                    <div class="hotel-city">📍 ${hotel.city}, ${hotel.address}</div>
+                    <div class="hotel-price">${hotel.price_per_night} ₽/ночь</div>
+                    <div class="hotel-rating">⭐ ${hotel.rating}</div>
+                </div>
+            `).join('');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            searchHotels();
+        });
+    </script>
+</body>
+</html>
